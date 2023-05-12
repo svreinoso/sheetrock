@@ -1,26 +1,157 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import { Form, Button, Card, Row, Col, ButtonGroup, ToggleButton } from 'react-bootstrap';
 
-export class Home extends Component {
-  static displayName = Home.name;
+export const Home = () => {
+  const [width, setWidth] = useState(0);
+  const [heigh, setHeigh] = useState(0);
+  const [result, setResult] = useState(null);
+  const [distanceParales, setDistanceParales] = useState(40);
+  const [distanceTornilloPlachas, setDistanceTornilloPlachas] = useState(8);
 
-  render() {
+  const calculate = () => {
+    if (!width || !heigh) {
+      alert('Datos incorrectos');
+      return;
+    }
+    console.log(width, heigh, distanceParales);
+    const data = {};
+
+    data.planchas = (width * heigh) / 32;
+    data.planchasR = Math.ceil(data.planchas) + Math.ceil(Math.ceil(data.planchas) / 32);
+
+    data.durmientes = ((width * 1 + heigh * 1) * 2) / 10;
+    data.durmientesR = Math.ceil(data.durmientes) + Math.ceil(Math.ceil(data.durmientes) / 10);
+
+    const max = width > heigh ? width : heigh;
+    const min = width < heigh ? width : heigh;
+    data.parales = ((max / (distanceParales / 2.54 / 12)) * min) / 10;
+    data.paralesR = Math.ceil(data.parales) + Math.ceil(Math.ceil(data.parales) / 10);
+
+    data.tornillosPlancha = distanceTornilloPlachas === 8 ? data.planchas * 36 : data.planchas * 28;
+    data.tornillosPlanchaR = Math.ceil(data.tornillosPlancha) + Math.ceil(Math.ceil(data.tornillosPlancha) / 10);
+
+    setResult(data);
+    console.log(data);
+  };
+
+  const renderValue = (title, value, valueR) => {
     return (
-      <div>
-        <h1>Hello, world!</h1>
-        <p>Welcome to your new single-page application, built with:</p>
-        <ul>
-          <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-          <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
-          <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-        </ul>
-        <p>To help you get started, we have also set up:</p>
-        <ul>
-          <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-          <li><strong>Development server integration</strong>. In development mode, the development server from <code>create-react-app</code> runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.</li>
-          <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
-        </ul>
-        <p>The <code>ClientApp</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
-      </div>
+      <Col sm={6} className="mt-3">
+        <Card>
+          <Card.Body>
+            <Card.Title>{title}</Card.Title>
+            <Row>
+              <Col sm={6}>
+                <p>
+                  Exacto: <b>{value.toFixed(2)}</b>
+                </p>
+              </Col>
+              <Col sm={6}>
+                <p>
+                  Recomendado: <b>{valueR}</b>
+                </p>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      </Col>
     );
-  }
-}
+  };
+
+  return (
+    <div>
+      <Form>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Ancho(pies)</Form.Label>
+          <Form.Control
+            required
+            onChange={(e) => setWidth(e.target.value)}
+            type="number"
+            step={0.1}
+            placeholder="Ancho"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Altura (pies)</Form.Label>
+          <Form.Control
+            required
+            onChange={(e) => setHeigh(e.target.value)}
+            type="number"
+            step={0.1}
+            placeholder="Altura"
+          />
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>Distancia de los parales</Form.Label>
+          <div>
+            <ButtonGroup>
+            <ToggleButton
+              id="radio-40"
+              type="radio"
+              variant={distanceParales === 40 ? 'outline-success' : 'link'}
+              name="radio"
+              value={distanceParales}
+              checked={distanceParales === 40}
+              onChange={(e) => setDistanceParales(40)}>
+              40 CM
+            </ToggleButton>
+            <ToggleButton
+              id="radio-60"
+              type="radio"
+              variant={distanceParales === 60 ? 'outline-success' : 'link'}
+              name="radio"
+              value={distanceParales}
+              checked={distanceParales === 60}
+              onChange={(e) => setDistanceParales(60)}>
+              60 CM
+            </ToggleButton>
+          </ButtonGroup>
+          </div>
+        </Form.Group>
+
+        
+        <Form.Group>
+          <Form.Label>Distancia de los tornillos de plancha</Form.Label>
+          <div>
+            <ButtonGroup>
+            <ToggleButton
+              id="t-8"
+              type="radio"
+              variant={distanceTornilloPlachas === 8 ? 'outline-success' : 'link'}
+              name="tornillos"
+              value={distanceTornilloPlachas}
+              checked={distanceTornilloPlachas === 8}
+              onChange={(e) => setDistanceTornilloPlachas(8)}>
+              8 PG (techo)
+            </ToggleButton>
+            <ToggleButton
+              id="t10"
+              type="radio"
+              variant={distanceTornilloPlachas === 10 ? 'outline-success' : 'link'}
+              name="tornillos"
+              value={distanceTornilloPlachas}
+              checked={distanceTornilloPlachas === 10}
+              onChange={(e) => setDistanceTornilloPlachas(10)}>
+              10 PG (pared)
+            </ToggleButton>
+          </ButtonGroup>
+          </div>
+        </Form.Group>
+
+        <Button variant="primary" onClick={calculate} className="mt-3">
+          Calcular
+        </Button>
+      </Form>
+      {result && (
+        <Row className="mt-3">
+          {renderValue('Planchas', result.planchas, result.planchasR)}
+          {renderValue('Durmientes', result.durmientes, result.durmientesR)}
+          {renderValue('Parales', result.parales, result.paralesR)}
+          {renderValue('Tornillos de plancha', result.tornillosPlancha, result.tornillosPlanchaR)}
+        </Row>
+      )}
+    </div>
+  );
+};
